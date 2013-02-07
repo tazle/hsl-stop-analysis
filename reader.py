@@ -1,6 +1,8 @@
 from collections import defaultdict
 from datetime import datetime, time
 
+__all__ = ["Stop", "Run", "run_generator", "raw_run_generator", "sanity_filter"]
+
 class Stop(object):
     """
     One stopping on a route. Contains number of the stop on the route,
@@ -77,13 +79,15 @@ def parse_run(run_lines):
 
 def run_generator(source):
     """
-    Generate sanity-filtered runs from a source of lines.
+    Generate sanity-filtered Runs from a source of lines. Consumes all
+    input before generating any output, so may not be usable on large
+    datasets.
     """
     return sanity_filter(raw_run_generator(source))
 
 def raw_run_generator(source):
     """
-    Generate runs from a source of lines.
+    Generate Runs from a source of lines.
     """
     buffer = []
     for line in source:
@@ -130,4 +134,11 @@ def _modal_length_run_filter(run_source):
 
 
 def sanity_filter(run_source):
+    """
+    Filter out singleton (one-stop) Runs and Runs that are not of the
+    modal length for that route. Consumes all input before generating
+    any output.
+    """
     return _modal_length_run_filter(_singleton_run_filter(run_source))
+
+
